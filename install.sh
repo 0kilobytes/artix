@@ -1,23 +1,4 @@
 #!/bin/sh -e
-#
-# A simple installer for Artix Linux
-#
-# Copyright (c) 2022 Maxwell Anderson
-#
-# This file is part of artix-installer.
-#
-# artix-installer is free software: you can redistribute it and/or modify it
-# under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# artix-installer is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-# General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with artix-installer. If not, see <https://www.gnu.org/licenses/>.
 
 confirm_password () {
     local pass1="a"
@@ -42,6 +23,20 @@ until [[ $my_init == "openrc" || $my_init == "dinit" ]]; do
     printf "Init system (openrc/dinit): " && read my_init
     [[ ! $my_init ]] && my_init="openrc"
 done
+
+until [[ $my_kernel == "linux" || $my_kernel == "linux-zen" || $my_kernel == "linux-lts" ]]; do
+    printf "kernel (linux/linux-zen/linux-lts " && read my_kernel
+    [[ ! $my_kernel ]] && my_kernel="linux"
+done
+
+until [[ $network_tool == "connman" || $network_tool == "networkmanager" ]]; do
+    printf "network tool (connman/networkmanager)" && read network_tool
+    [[ ! $network_tool ]] && network_tool="connman"
+done
+
+# Wipe disk or not
+printf "Wipe disk? (y/N): " && read wipe_disk
+[[ ! $wipe_disk ]] && wipe_disk="n"
 
 # Choose disk
 while :
@@ -107,7 +102,7 @@ done
 root_password=$(confirm_password "root password")
 
 installvars () {
-    echo my_init=$my_init my_disk=$my_disk part1=$part1 part2=$part2 part3=$part3 \
+    echo my_init=$my_init my_kernel=$my_kernel network_tool=$network_tool wipe_disk=$wipe_disk my_disk=$my_disk part1=$part1 part2=$part2 part3=$part3 \
         swap_size=$swap_size my_fs=$my_fs root_part=$root_part encrypted=$encrypted my_root=$my_root my_swap=$my_swap \
         region_city=$region_city my_hostname=$my_hostname \
         cryptpass=$cryptpass root_password=$root_password
@@ -116,9 +111,9 @@ installvars () {
 printf "\nDone with configuration. Installing...\n\n"
 
 # Install
-sudo $(installvars) sh src/installer.sh
+sudo $(installvars) sh b.sh
 
 # Chroot
-sudo cp src/iamchroot.sh /mnt/root/ && \
-    sudo $(installvars) artix-chroot /mnt /bin/bash -c 'sh /root/iamchroot.sh; rm /root/iamchroot.sh; exit' && \
+sudo cp c.sh /mnt/root/ && \
+    sudo $(installvars) artix-chroot /mnt /bin/bash -c 'sh /root/c.sh; rm /root/c.sh; exit' && \
     printf '\n`sudo artix-chroot /mnt /bin/bash` back into the system to make any final changes.\n\nYou may now poweroff.\n'
