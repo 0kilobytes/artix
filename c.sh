@@ -15,6 +15,13 @@ printf "$my_hostname\n" > /etc/hostname
 printf "hostname=\"$my_hostname\"\n" > /etc/conf.d/hostname
 printf "\n127.0.0.1\tlocalhost\n::1\t\tlocalhost\n127.0.1.1\t$my_hostname.localdomain\t$my_hostname\n" > /etc/hosts
 
+if [ -z "$username" ]; then
+    :
+else
+     useradd -m $username
+     yes $user_password | passwd $username
+fi
+
 # Install boot loader
 root_part_uuid=$(blkid $root_part -o value -s UUID)
 
