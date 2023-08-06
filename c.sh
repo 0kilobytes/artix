@@ -37,13 +37,18 @@ grub-mkconfig -o /boot/grub/grub.cfg
 # Root user
 yes $root_password | passwd
 
-#sed -i '/%wheel ALL=(ALL) ALL/s/^#//g' /etc/sudoers
+sed -i '/%wheel ALL=(ALL) ALL/s/^#//g' /etc/sudoers
 
 # Other stuff you should do
 if [[ $my_init == "openrc" ]]; then
     rc-update add connmand default
 elif [[ $my_init == "dinit" ]]; then
     ln -s /etc/dinit.d/connmand /etc/dinit.d/boot.d/
+elif [[ $my_init == "runit" ]]; then
+    ln -s /etc/runit/sv/connmand /etc/runit/runsvdir/default
+elif [[ $my_init == "s6" ]]; then
+    touch /etc/s6/adminsv/default/contents.d/connmand
+    s6-db-reload
 fi
 
 [[ $my_fs == "ext4" && $my_init == "openrc" ]] && rc-update add lvm boot
