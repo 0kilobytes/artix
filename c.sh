@@ -37,7 +37,7 @@ grub-mkconfig -o /boot/grub/grub.cfg
 # Root user
 yes $root_password | passwd
 
-sed -i '/%wheel ALL=(ALL) ALL/s/^#//g' /etc/sudoers
+#sed -i '/%wheel ALL=(ALL) ALL/s/^#//g' /etc/sudoers
 
 # Other stuff you should do
 if [[ $my_init == "openrc" ]]; then
