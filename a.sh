@@ -19,8 +19,8 @@ sudo loadkeys us
 [[ ! -d /sys/firmware/efi ]] && printf "Not booted in UEFI mode. Aborting..." && exit 1
 
 # Choose my_init
-until [[ $my_init == "openrc" || $my_init == "dinit" ]]; do
-    printf "Init system (openrc/dinit): " && read my_init
+until [[ $my_init == "openrc" || $my_init == "dinit" || $my_init == "runit" || $my_init == "s6"  ]]; do
+    printf "Init system (openrc/dinit/runit/s6): " && read my_init
     [[ ! $my_init ]] && my_init="openrc"
 done
 
@@ -101,10 +101,12 @@ done
 # Users
 root_password=$(confirm_password "root password")
 
+printf "Username: " && read username
+
 installvars () {
     echo my_init=$my_init my_kernel=$my_kernel network_tool=$network_tool wipe_disk=$wipe_disk my_disk=$my_disk part1=$part1 part2=$part2 part3=$part3 \
         swap_size=$swap_size my_fs=$my_fs root_part=$root_part encrypted=$encrypted my_root=$my_root my_swap=$my_swap \
-        region_city=$region_city my_hostname=$my_hostname \
+        region_city=$region_city my_hostname=$my_hostname username=$username \
         cryptpass=$cryptpass root_password=$root_password
 }
 
