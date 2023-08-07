@@ -35,8 +35,10 @@ until [[ $network_tool == "connman" || $network_tool == "networkmanager" ]]; do
 done
 
 # Wipe disk or not
-printf "Wipe disk? (y/N): " && read wipe_disk
-[[ ! $wipe_disk ]] && wipe_disk="n"
+until [[ $wipe_disk == "n" || $wipe_disk == "y" ]]; do
+    printf "Wipe disk? (y/N): " && read network_tool
+    [[ ! $wipe_disk ]] && wipe_disk="n"
+done
 
 # Choose disk
 while :
@@ -102,10 +104,23 @@ done
 root_password=$(confirm_password "root password")
 
 printf "Username (enter to skip): " && read username
-if [ -z "$username" ]; then
+if [[ -z $username ]]; then
     :
 else
     user_password=$(confirm_password "user password")
+fi
+
+# Post install
+until [[ $post_install == "none" || $post_install == "minimal" || $post_install == "desktop" || $post_install == "server" ]]; do
+    printf "Import a post install script (none/minimal/desktop/server: " && read post_install
+    [[ ! $post_install ]] && post_install="none"
+done
+
+if [[ $post_install -ne "none" ]]; then
+    until [[ $runafter == "n" || $runafter == "y" ]]; do
+        printf "Run post install after reboot? (y/N): " && read runafter
+        [[ ! $runafter ]] && runafter="n"
+    done
 fi
 
 installvars () {
@@ -119,6 +134,15 @@ printf "\nDone with configuration. Installing...\n\n"
 
 # Install
 sudo $(installvars) sh b.sh
+
+if [[ $runafter == "y" ]] then
+    curl -LO https://raw.githubusercontent.com/0kilobytes/artix-install/main/$post_install.sh && \
+    cp $post_install.sh /mnt/root/ && \
+    printf '\n`Run /home/$post_install.sh after rebooting.\n'
+elif [ $runafter == "n" ]] then
+    curl -LO https://raw.githubusercontent.com/0kilobytes/artix-install/main/$post_install.sh && \
+    sed -i '$r '$post_install.sh'' c.sh
+fi
 
 # Chroot
 sudo cp c.sh /mnt/root/ && \
