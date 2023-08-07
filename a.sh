@@ -116,7 +116,9 @@ until [[ $post_install == "none" || $post_install == "minimal" || $post_install 
     [[ ! $post_install ]] && post_install="none"
 done
 
-if [[ $post_install -ne "none" ]]; then
+if [[ $post_install == "none" ]]; then
+    :
+else
     until [[ $runafter == "n" || $runafter == "y" ]]; do
         printf "Run post install after reboot? (y/N): " && read runafter
         [[ ! $runafter ]] && runafter="n"
@@ -135,11 +137,11 @@ printf "\nDone with configuration. Installing...\n\n"
 # Install
 sudo $(installvars) sh b.sh
 
-if [[ $runafter == "y" ]] then
+if [[ $runafter == "y" ]]; then
     curl -LO https://raw.githubusercontent.com/0kilobytes/artix-install/main/$post_install.sh && \
     cp $post_install.sh /mnt/root/ && \
     printf '\n`Run /home/$post_install.sh after rebooting.\n'
-elif [ $runafter == "n" ]] then
+elif [ $runafter == "n" ]]; then
     curl -LO https://raw.githubusercontent.com/0kilobytes/artix-install/main/$post_install.sh && \
     sed -i '$r '$post_install.sh'' c.sh
 fi
