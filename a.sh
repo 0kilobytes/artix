@@ -36,7 +36,7 @@ done
 
 # Wipe disk or not
 until [[ $wipe_disk == "n" || $wipe_disk == "y" ]]; do
-    printf "Wipe disk? (y/N): " && read network_tool
+    printf "Wipe disk? (y/N): " && read wipe_disk
     [[ ! $wipe_disk ]] && wipe_disk="n"
 done
 
@@ -73,8 +73,10 @@ root_part=$part3
 [[ $my_fs == "ext4" ]] && root_part=$part2
 
 # Encrypt or not
-printf "Encrypt? (y/N): " && read encrypted
-[[ ! $encrypted ]] && encrypted="n"
+until [[ $encrypted == "n" || $encrypted == "y" ]]; do
+    printf "Encrypt? (y/N): " && read encrypted
+    [[ ! $encrypted ]] && encrypted="n"
+done
 
 my_root="/dev/mapper/root"
 my_swap="/dev/mapper/swap"
@@ -129,7 +131,7 @@ installvars () {
     echo my_init=$my_init my_kernel=$my_kernel network_tool=$network_tool wipe_disk=$wipe_disk my_disk=$my_disk part1=$part1 part2=$part2 part3=$part3 \
         swap_size=$swap_size my_fs=$my_fs root_part=$root_part encrypted=$encrypted my_root=$my_root my_swap=$my_swap \
         region_city=$region_city my_hostname=$my_hostname username=$username \
-        cryptpass=$cryptpass root_password=$root_password user_password=$user_password
+        cryptpass=$cryptpass root_password=$root_password user_password=$user_password runafter=$runafter post_install=$post_install
 }
 
 printf "\nDone with configuration. Installing...\n\n"
