@@ -1,5 +1,9 @@
 #!/bin/sh -e
 
+
+
+
+
 confirm_password () {
     local pass1="a"
     local pass2="b"
@@ -139,16 +143,18 @@ printf "\nDone with configuration. Installing...\n\n"
 # Install
 sudo $(installvars) sh b.sh
 
-if [[ $runafter == "y" ]]; then
-    curl -LO https://raw.githubusercontent.com/0kilobytes/artix-install/main/$post_install.sh && \
-    cp $post_install.sh /mnt/root/ && \
-    printf '\n`Run /home/$post_install.sh after rebooting.\n'
-elif [ $runafter == "n" ]]; then
-    curl -LO https://raw.githubusercontent.com/0kilobytes/artix-install/main/$post_install.sh && \
-    sed -i '$r '$post_install.sh'' c.sh
-fi
-
 # Chroot
 sudo cp c.sh /mnt/root/ && \
     sudo $(installvars) artix-chroot /mnt /bin/bash -c 'sh /root/c.sh; rm /root/c.sh; exit' && \
     printf '\n`sudo artix-chroot /mnt /bin/bash` back into the system to make any final changes.\n\nYou may now poweroff.\n'
+
+if [[ -z $runafter ]]; then
+    :
+else
+    curl -o /mnt/root/$post_install.sh https://raw.githubusercontent.com/0kilobytes/artix-install/main/$post_install.sh && \
+    if [[ $runafter == "y" ]]; then
+        printf '\n`Run /home/$post_install.sh after rebooting.\n'
+    elif [ $runafter == "n" ]]; then
+        sudo $(installvars) artix-chroot /mnt /bin/bash -c 'sh /root/'$post_install'.sh; rm /root/c.sh; exit'
+    fi
+fi
