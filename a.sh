@@ -155,6 +155,6 @@ else
     if [[ $runafter == "y" ]]; then
         printf '\n`Run /home/$post_install.sh after rebooting.\n'
     elif [[ $runafter == "n" ]]; then
-        sudo $(installvars) artix-chroot /mnt /bin/bash -c 'sh /root/'$post_install'.sh; rm /root/c.sh; exit'
+        sudo $(installvars) artix-chroot /mnt /bin/bash -c 'sh /root/'$post_install'.sh && rm /root/$post_install.sh; exit'
     fi
 fi
